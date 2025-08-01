@@ -1,10 +1,16 @@
 const { AutismKnowledgeBase } = require('../data/knowledge-base');
 const { ReferenceSystem } = require('../data/references');
+const OpenAI = require('openai');
 
 class AuroraIntelligence {
   constructor() {
     this.knowledgeBase = new AutismKnowledgeBase();
     this.references = new ReferenceSystem();
+    
+    // Initialize OpenAI for complex intelligence tasks
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
     
     // Autism-related keywords for intent classification
     this.autismKeywords = [
@@ -13,6 +19,14 @@ class AuroraIntelligence {
       'social', 'interaction', 'behavior', 'developmental', 'therapy',
       'iep', '504', 'school', 'accommodation', 'special', 'education',
       'early', 'intervention', 'signs', 'symptoms', 'diagnosis'
+    ];
+    
+    // Keywords that indicate complex questions requiring OpenAI
+    this.complexQuestionKeywords = [
+      'how to create', 'how do i create', 'help me create', 'help me write',
+      'local', 'near me', 'in my area', 'find therapist', 'find doctor',
+      'personalized', 'my child', 'my situation', 'specific', 'detailed plan',
+      '504 plan', 'iep plan', 'individualized', 'step by step', 'guide me'
     ];
   }
 
@@ -161,10 +175,120 @@ class AuroraIntelligence {
   }
 
   /**
+   * Determines whether to use OpenAI (complex) or knowledge base (simple)
+   */
+  shouldUseOpenAI(question, classification) {
+    const lowerQuestion = question.toLowerCase();
+    
+    // Check for complex question indicators
+    const hasComplexKeywords = this.complexQuestionKeywords.some(keyword => 
+      lowerQuestion.includes(keyword)
+    );
+    
+    // Location-based questions (therapists, resources)
+    const hasLocationRequest = /\b\d{5}\b|\bin [a-z\s]+|\bnear\b|\blocal\b|\barea\b/i.test(question);
+    
+    // Plan creation requests
+    const isPlanRequest = /\b(504|iep|plan)\b.*\b(create|write|help|make)\b/i.test(question);
+    
+    // Question length (longer questions often need more nuanced responses)
+    const isLongQuestion = question.length > 80;
+    
+    // Complex topics that benefit from AI reasoning
+    const complexTopics = classification.detectedTopics?.some(topic => 
+      ['education_support', 'behavioral_support', 'family_support'].includes(topic)
+    );
+    
+    return hasComplexKeywords || hasLocationRequest || isPlanRequest || 
+           (isLongQuestion && complexTopics);
+  }
+
+  /**
    * Layer 2: The Expert
-   * Generates autism-focused response using knowledge base templates
+   * Hybrid approach: OpenAI for complex questions, knowledge base for simple ones
    */
   async generateExpertResponse(question, classification) {
+    // Decide whether to use OpenAI or knowledge base
+    const useOpenAI = this.shouldUseOpenAI(question, classification);
+    
+    if (useOpenAI) {
+      console.log('🤖 Using OpenAI for complex question');
+      return await this.generateOpenAIResponse(question, classification);
+    } else {
+      console.log('📚 Using knowledge base for simple question');
+      return this.generateKnowledgeBaseResponse(question, classification);
+    }
+  }
+
+  /**
+   * Generate response using OpenAI for complex questions
+   */
+  async generateOpenAIResponse(question, classification) {
+    try {
+      const prompt = this.buildOpenAIPrompt(question, classification);
+      
+      const completion = await this.openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content: `You are Aurora, a specialized autism support assistant. You provide evidence-based, compassionate guidance for autism-related questions. 
+
+IMPORTANT GUIDELINES:
+- Focus ONLY on autism-related topics
+- Provide practical, actionable advice
+- Include disclaimers about consulting professionals
+- Be empathetic and understanding
+- Use clear, accessible language
+- For 504/IEP plans, provide specific, detailed steps
+- For local resources, give strategies to find them
+- Always emphasize individual differences in autism
+
+Remember: You're in Beta and can make mistakes. Always recommend professional consultation for important decisions.`
+          },
+          {
+            role: "user", 
+            content: prompt
+          }
+        ],
+        max_tokens: 800,
+        temperature: 0.7
+      });
+
+      let response = completion.choices[0].message.content;
+      
+      // Add beta disclaimer
+      response += "\n\n*As a Beta assistant, I can make mistakes. For important decisions, please consult with qualified professionals.*";
+      
+      return response;
+      
+    } catch (error) {
+      console.error('OpenAI API error:', error);
+      // Fallback to knowledge base if OpenAI fails
+      return this.generateKnowledgeBaseResponse(question, classification);
+    }
+  }
+
+  /**
+   * Build specialized prompt for OpenAI
+   */
+  buildOpenAIPrompt(question, classification) {
+    let prompt = `User's autism-related question: "${question}"\n\n`;
+    
+    // Add context about detected topics
+    if (classification.detectedTopics && classification.detectedTopics.length > 0) {
+      prompt += `Detected topic areas: ${classification.detectedTopics.join(', ')}\n\n`;
+    }
+    
+    prompt += `Please provide a helpful, detailed response that addresses this question with practical, evidence-based guidance for autism support.`;
+    
+    return prompt;
+  }
+
+  /**
+   * Generate response using knowledge base (original approach)
+   */
+  generateKnowledgeBaseResponse(question, classification) {
     // Get relevant knowledge from our curated base
     const relevantKnowledge = this.knowledgeBase.findRelevantTopics(
       question, 
