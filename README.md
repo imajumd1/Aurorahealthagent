@@ -4,18 +4,19 @@ Aurora is a specialized virtual health agent designed to provide evidence-based 
 
 ## ✨ Key Features
 
-- **Intelligent Question Processing**: Handles spelling mistakes and grammatical errors gracefully
-- **Three-Layer Intelligence**: Gatekeeper → Expert → Scholar architecture
+- **Knowledge-Base Powered**: Fast responses from curated autism expertise
+- **Three-Layer Intelligence**: Gatekeeper → Expert → Scholar architecture  
 - **Autism-Focused Knowledge**: Specialized knowledge base with credible references
-- **Instant Responses**: Optimized for speed and user experience
+- **Instant Responses**: No external API calls = faster performance
 - **Safe Guardrails**: Politely redirects non-autism questions
 - **Beta Transparency**: Honest about limitations and potential mistakes
+- **No API Keys Required**: Simple deployment with no external dependencies
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
-- OpenAI API key
+- That's it! No API keys required 🎉
 
 ### Installation
 
@@ -26,14 +27,13 @@ cd aurora-autism-agent
 npm install
 ```
 
-2. **Environment Configuration:**
-Create a `.env` file in the root directory:
+2. **Optional Configuration:**
+You can create a `.env` file for custom settings (all optional):
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_MODEL=gpt-4
 PORT=3000
 NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
+LOG_LEVEL=info
 ```
 
 3. **Start Aurora:**
@@ -53,9 +53,9 @@ Open your browser to: `http://localhost:3000`
 ### Backend (Node.js + Express)
 ```
 ┌─────────────────┐    ┌──────────────┐    ┌─────────────────┐
-│   User Input    │───▶│   Aurora     │───▶│   OpenAI API    │
-│ (with typos/    │    │ Intelligence │    │   + Knowledge   │
-│  grammar errors)│    │   System     │    │      Base       │
+│   User Input    │───▶│   Aurora     │───▶│ Built-in Autism │
+│ (with typos/    │    │ Intelligence │    │ Knowledge Base  │
+│  grammar errors)│    │   System     │    │  + References   │
 └─────────────────┘    └──────────────┘    └─────────────────┘
                               │
                               ▼
@@ -68,9 +68,9 @@ Open your browser to: `http://localhost:3000`
 
 ### Three-Layer Intelligence System
 
-1. **🛡️ The Gatekeeper**: Intent classification (autism-related vs off-topic)
-2. **🧠 The Expert**: Knowledge-enhanced response generation
-3. **📚 The Scholar**: Automatic reference attribution
+1. **🛡️ The Gatekeeper**: Keyword-based classification (autism-related vs off-topic)
+2. **🧠 The Expert**: Template-based response from curated knowledge
+3. **📚 The Scholar**: Automatic reference attribution from trusted sources
 
 ### Frontend
 - Clean, accessible design following Aurora branding

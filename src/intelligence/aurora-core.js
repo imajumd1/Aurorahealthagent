@@ -1,15 +1,19 @@
-const OpenAI = require('openai');
 const { AutismKnowledgeBase } = require('../data/knowledge-base');
 const { ReferenceSystem } = require('../data/references');
 
 class AuroraIntelligence {
   constructor() {
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    });
     this.knowledgeBase = new AutismKnowledgeBase();
     this.references = new ReferenceSystem();
-    this.model = process.env.OPENAI_MODEL || 'gpt-4';
+    
+    // Autism-related keywords for intent classification
+    this.autismKeywords = [
+      'autism', 'autistic', 'asd', 'spectrum', 'asperger', 'aspergers',
+      'sensory', 'stimming', 'meltdown', 'nonverbal', 'communication',
+      'social', 'interaction', 'behavior', 'developmental', 'therapy',
+      'iep', '504', 'school', 'accommodation', 'special', 'education',
+      'early', 'intervention', 'signs', 'symptoms', 'diagnosis'
+    ];
   }
 
   /**
@@ -72,65 +76,93 @@ class AuroraIntelligence {
 
   /**
    * Layer 1: The Gatekeeper
-   * Determines if question is autism-related with high accuracy
+   * Determines if question is autism-related using keyword matching
    */
   async classifyIntent(question) {
-    const prompt = `You are Aurora, an autism specialist assistant. Determine if this question relates to Autism Spectrum Disorder.
+    const lowerQuestion = question.toLowerCase();
+    
+    // Check for autism-related keywords
+    const foundKeywords = this.autismKeywords.filter(keyword => 
+      lowerQuestion.includes(keyword)
+    );
+    
+    // Additional fuzzy matching for common misspellings
+    const fuzzyMatches = this.checkFuzzyMatches(lowerQuestion);
+    const allMatches = [...foundKeywords, ...fuzzyMatches];
+    
+    // Determine if autism-related based on keyword matches
+    const isAutismRelated = allMatches.length > 0;
+    const confidence = Math.min(allMatches.length * 0.3, 1.0);
+    
+    // Detect topic categories
+    const detectedTopics = this.detectTopicCategories(lowerQuestion, allMatches);
+    
+    return {
+      isAutismRelated,
+      confidence,
+      reasoning: isAutismRelated 
+        ? `Found autism-related keywords: ${allMatches.join(', ')}`
+        : 'No autism-related keywords detected',
+      detectedTopics
+    };
+  }
 
-Consider these autism-related topics as IN SCOPE:
-- Diagnosis, assessment, early signs
-- Treatments, therapies, interventions
-- Daily living, communication, sensory issues
-- Education, IEPs, school support
-- Family support, caregiving
-- Adult autism, employment, relationships
-- Legal rights, advocacy, discrimination
-- Government funding, state funding, insurance coverage
-- Autism communities, support groups, resources
-- Research, evidence-based practices
+  /**
+   * Check for fuzzy matches of autism-related terms
+   */
+  checkFuzzyMatches(question) {
+    const fuzzyTerms = [
+      { pattern: /autis[mt]/g, match: 'autism' },
+      { pattern: /asperg/g, match: 'asperger' },
+      { pattern: /sensre?y/g, match: 'sensory' },
+      { pattern: /stim+ing?/g, match: 'stimming' },
+      { pattern: /meltdow?n/g, match: 'meltdown' },
+      { pattern: /iep/g, match: 'iep' },
+      { pattern: /504/g, match: '504' }
+    ];
+    
+    const matches = [];
+    fuzzyTerms.forEach(term => {
+      if (term.pattern.test(question)) {
+        matches.push(term.match);
+      }
+    });
+    
+    return matches;
+  }
 
-Question: "${question}"
-
-Even if the question has spelling errors or grammar mistakes, focus on the intent and meaning.
-
-Respond with JSON only:
-{
-  "isAutismRelated": true/false,
-  "confidence": 0.0-1.0,
-  "reasoning": "brief explanation",
-  "detectedTopics": ["array of relevant topics if autism-related"]
-}`;
-
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: this.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1, // Low temperature for consistent classification
-        max_tokens: 200
-      });
-
-      const result = JSON.parse(response.choices[0].message.content);
-      return {
-        isAutismRelated: result.isAutismRelated,
-        confidence: result.confidence,
-        reasoning: result.reasoning,
-        detectedTopics: result.detectedTopics || []
-      };
-    } catch (error) {
-      console.error('Intent classification error:', error);
-      // Fallback: assume autism-related with low confidence
-      return {
-        isAutismRelated: true,
-        confidence: 0.3,
-        reasoning: 'Classification service unavailable, proceeding with caution',
-        detectedTopics: []
-      };
-    }
+  /**
+   * Detect topic categories based on question content
+   */
+  detectTopicCategories(question, keywords) {
+    const topicMap = {
+      'sensory_processing': ['sensory', 'sound', 'noise', 'touch', 'texture', 'overstimulation'],
+      'communication': ['communication', 'speech', 'language', 'nonverbal', 'talking'],
+      'education_support': ['school', 'education', 'iep', '504', 'teacher', 'classroom'],
+      'behavioral_support': ['behavior', 'meltdown', 'tantrum', 'stimming', 'routine'],
+      'social_skills': ['social', 'friends', 'interaction', 'play', 'conversation'],
+      'early_intervention': ['early', 'signs', 'diagnosis', 'assessment', 'toddler'],
+      'adult_support': ['adult', 'employment', 'job', 'work', 'independence'],
+      'family_support': ['family', 'parent', 'sibling', 'support', 'help']
+    };
+    
+    const detectedTopics = [];
+    Object.keys(topicMap).forEach(topic => {
+      const topicKeywords = topicMap[topic];
+      const hasTopicKeywords = topicKeywords.some(keyword => 
+        question.includes(keyword) || keywords.includes(keyword)
+      );
+      if (hasTopicKeywords) {
+        detectedTopics.push(topic);
+      }
+    });
+    
+    return detectedTopics;
   }
 
   /**
    * Layer 2: The Expert
-   * Generates autism-focused response using knowledge base
+   * Generates autism-focused response using knowledge base templates
    */
   async generateExpertResponse(question, classification) {
     // Get relevant knowledge from our curated base
@@ -139,41 +171,62 @@ Respond with JSON only:
       classification.detectedTopics
     );
 
-    const prompt = `You are Aurora, a knowledgeable and compassionate autism support specialist. 
-
-Your role:
-- Provide helpful, evidence-based guidance about autism
-- Use warm, supportive, professional tone
-- Focus on practical, actionable advice
-- Always mention when professional consultation is recommended
-- Use person-first language
-- Be specific and structured in your responses
-
-Important reminders:
-- I am in Beta and can make mistakes
-- I provide general information only
-- Always recommend consulting healthcare professionals for medical decisions
-
-User's question: "${question}"
-
-Relevant knowledge context:
-${JSON.stringify(relevantKnowledge, null, 2)}
-
-Provide a structured, helpful response. Include specific strategies and considerations where appropriate.`;
-
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: this.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.3, // Balanced creativity and consistency
-        max_tokens: 800
-      });
-
-      return response.choices[0].message.content;
-    } catch (error) {
-      console.error('Expert response generation error:', error);
-      return this.getFallbackResponse(question, classification);
+    // If no relevant knowledge found, provide general guidance
+    if (Object.keys(relevantKnowledge).length === 0) {
+      return this.getGeneralAutismResponse(question);
     }
+
+    // Build response from knowledge base
+    let response = "Based on evidence-based approaches for autism support, here's helpful information:\n\n";
+    
+    Object.keys(relevantKnowledge).forEach(topicKey => {
+      const topic = relevantKnowledge[topicKey];
+      
+      response += `**${this.formatTopicTitle(topicKey)}:**\n`;
+      response += `${topic.summary}\n\n`;
+      
+      if (topic.strategies && topic.strategies.length > 0) {
+        response += "**Strategies:**\n";
+        topic.strategies.forEach(strategy => {
+          response += `• ${strategy}\n`;
+        });
+        response += "\n";
+      }
+    });
+
+    // Add professional consultation reminder
+    response += "**Important:** This is general information only. For personalized guidance, please consult with healthcare professionals, therapists, or autism specialists who can assess your specific situation.\n\n";
+    
+    // Add beta disclaimer
+    response += "*As a Beta assistant, I can make mistakes. Always verify important information with qualified professionals.*";
+
+    return response;
+  }
+
+  /**
+   * Format topic titles for display
+   */
+  formatTopicTitle(topicKey) {
+    return topicKey
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+  }
+
+  /**
+   * Provide general autism response when no specific knowledge found
+   */
+  getGeneralAutismResponse(question) {
+    return `Thank you for your autism-related question. While I have information on many autism topics, I don't have specific guidance that directly matches your question.
+
+**General Autism Resources:**
+• Contact your healthcare provider for personalized advice
+• Reach out to local autism support organizations
+• Consider consulting with autism specialists (behavioral therapists, speech therapists, occupational therapists)
+• Explore resources from reputable organizations like Autism Speaks, the National Autism Association, or the Autistic Self Advocacy Network
+
+**Remember:** Every person with autism is unique, and what works for one individual may not work for another. Professional guidance tailored to your specific situation is always recommended.
+
+*As a Beta assistant, I can make mistakes. For important decisions, please consult with qualified professionals.*`;
   }
 
   /**
@@ -218,18 +271,7 @@ Provide a structured, helpful response. Include specific strategies and consider
     };
   }
 
-  /**
-   * Fallback response when AI services fail
-   */
-  getFallbackResponse(question, classification) {
-    const topics = classification.detectedTopics || [];
-    
-    if (topics.includes('crisis') || question.includes('emergency')) {
-      return "If you're experiencing a crisis or emergency, please contact:\n\n• National Suicide Prevention Lifeline: 988\n• Crisis Text Line: Text HOME to 741741\n• Emergency Services: 911\n\nI'm currently experiencing technical difficulties, but your safety is the priority.";
-    }
 
-    return "I understand you're asking about autism-related topics, but I'm experiencing some technical difficulties right now. As a Beta assistant, I sometimes encounter issues. Please try again in a moment, or consider reaching out to:\n\n• Autism Speaks: autismspeaks.org\n• National Autism Association: nationalautismassociation.org\n• Your healthcare provider for personalized guidance";
-  }
 }
 
 module.exports = { AuroraIntelligence };
