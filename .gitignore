@@ -63,4 +63,4 @@ Thumbs.db
 
 # Aurora specific
 *.tmp
-temp/
+temp/# Force Railway redeploy Fri Aug  1 00:43:02 PDT 2025
