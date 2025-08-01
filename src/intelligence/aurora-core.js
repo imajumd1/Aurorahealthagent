@@ -7,10 +7,26 @@ class AuroraIntelligence {
     this.knowledgeBase = new AutismKnowledgeBase();
     this.references = new ReferenceSystem();
     
-    // Initialize OpenAI for complex intelligence tasks
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    });
+    // Initialize OpenAI for complex intelligence tasks with error handling
+    this.openaiEnabled = false;
+    this.openai = null;
+    
+    try {
+      if (process.env.OPENAI_API_KEY) {
+        this.openai = new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY
+        });
+        this.openaiEnabled = true;
+        console.log('🤖 OpenAI integration enabled');
+      } else {
+        console.log('📚 OpenAI API key not found, using knowledge base only');
+      }
+    } catch (error) {
+      console.error('❌ OpenAI initialization failed:', error.message);
+      console.log('📚 Falling back to knowledge base only');
+      this.openaiEnabled = false;
+      this.openai = null;
+    }
     
     // Autism-related keywords for intent classification
     this.autismKeywords = [
@@ -178,6 +194,11 @@ class AuroraIntelligence {
    * Determines whether to use OpenAI (complex) or knowledge base (simple)
    */
   shouldUseOpenAI(question, classification) {
+    // First check if OpenAI is available
+    if (!this.openaiEnabled || !this.openai) {
+      return false;
+    }
+    
     const lowerQuestion = question.toLowerCase();
     
     // Check for complex question indicators
