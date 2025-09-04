@@ -16,9 +16,15 @@ const PORT = process.env.PORT || 3002;
 if (!process.env.OPENAI_API_KEY) {
   console.warn('⚠️  WARNING: OPENAI_API_KEY not found. Aurora will use knowledge base only.');
   console.warn('   For full functionality, set OPENAI_API_KEY in your environment variables.');
+  console.warn('   The app will still work with basic autism support features.');
 } else {
   console.log('✅ OpenAI API key found - Full LLM functionality enabled');
 }
+
+// Ensure the app starts even without OpenAI
+console.log('🚀 Starting Aurora Autism Assistant...');
+console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`🌐 Port: ${PORT}`);
 
 // Security and performance middleware
 app.use(helmet());
@@ -52,6 +58,16 @@ app.use(express.static('public'));
 // Setup routes
 setupRoutes(app, aurora);
 
+// Fallback route for any unhandled requests
+app.use('*', (req, res) => {
+  console.log(`🔍 Unhandled route: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({
+    error: 'Route not found',
+    message: 'Aurora Autism Assistant - Route not found',
+    availableRoutes: ['/health', '/api/ask', '/api/topics', '/api/analytics']
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
@@ -71,11 +87,18 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-app.listen(PORT, () => {
-  console.log(`🧩 Aurora Autism Assistant running on port ${PORT}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log(`🌐 Web interface: http://localhost:${PORT}`);
-  console.log(`🤖 Ready to help with autism-related questions!`);
-});
+// Start server with error handling
+try {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🧩 Aurora Autism Assistant running on port ${PORT}`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+    console.log(`🌐 Web interface: http://localhost:${PORT}`);
+    console.log(`🤖 Ready to help with autism-related questions!`);
+    console.log(`📊 Server started successfully at ${new Date().toISOString()}`);
+  });
+} catch (error) {
+  console.error('❌ Failed to start server:', error);
+  process.exit(1);
+}
 
 module.exports = app;
