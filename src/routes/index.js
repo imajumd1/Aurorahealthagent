@@ -8,6 +8,7 @@ const { validateQuestion, trackResponseTime } = require('../middleware');
  * Setup all routes for the Aurora application
  */
 function setupRoutes(app, aurora) {
+  console.log('🔧 Setting up Aurora routes...');
   
   // Main question endpoint - the heart of Aurora
   app.post('/api/ask', 
@@ -304,6 +305,8 @@ function setupRoutes(app, aurora) {
       }
     });
   });
+  
+  console.log('✅ Aurora routes setup complete');
 }
 
 module.exports = { setupRoutes };

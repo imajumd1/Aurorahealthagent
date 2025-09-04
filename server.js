@@ -58,16 +58,6 @@ app.use(express.static('public'));
 // Setup routes
 setupRoutes(app, aurora);
 
-// Fallback route for any unhandled requests
-app.use('*', (req, res) => {
-  console.log(`🔍 Unhandled route: ${req.method} ${req.originalUrl}`);
-  res.status(404).json({
-    error: 'Route not found',
-    message: 'Aurora Autism Assistant - Route not found',
-    availableRoutes: ['/health', '/api/ask', '/api/topics', '/api/analytics']
-  });
-});
-
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
@@ -75,6 +65,16 @@ app.get('/health', (req, res) => {
     service: 'Aurora Autism Assistant',
     version: '1.0.0',
     timestamp: new Date().toISOString()
+  });
+});
+
+// Fallback route for any unhandled requests (must be before error handler)
+app.use('*', (req, res) => {
+  console.log(`🔍 Unhandled route: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({
+    error: 'Route not found',
+    message: 'Aurora Autism Assistant - Route not found',
+    availableRoutes: ['/health', '/api/ask', '/api/topics', '/api/analytics']
   });
 });
 
