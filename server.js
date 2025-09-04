@@ -12,11 +12,19 @@ const { errorHandler, requestLogger } = require('./src/middleware');
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+// Environment validation
+if (!process.env.OPENAI_API_KEY) {
+  console.warn('⚠️  WARNING: OPENAI_API_KEY not found. Aurora will use knowledge base only.');
+  console.warn('   For full functionality, set OPENAI_API_KEY in your environment variables.');
+} else {
+  console.log('✅ OpenAI API key found - Full LLM functionality enabled');
+}
+
 // Security and performance middleware
 app.use(helmet());
 app.use(compression());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3002',
+  origin: process.env.FRONTEND_URL || process.env.RAILWAY_PUBLIC_DOMAIN || 'http://localhost:3002',
   credentials: true
 }));
 
