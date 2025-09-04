@@ -1,9 +1,11 @@
 # Autism Virtual Agent - MVP Specification
 
 ## MVP Goal
-Create a backend-focused autism virtual agent that feels magical while remaining simple. Users can ask any question in English and receive intelligent, autism-focused responses with proper citations and guardrails.
+Create a backend-focused autism virtual agent that feels magical while remaining simple. Users can ask any question in English and receive intelligent responses that always call the LLM while maintaining intelligent guardrails and autism focus.
 
-## Core Magic Moment
+## Core Magic Moments
+
+### **Autism-Related Question**
 **User asks**: "How can I help my 5-year-old with autism who has meltdowns in grocery stores?"
 
 **Agent responds**: 
@@ -31,6 +33,18 @@ Based on evidence-based approaches for autism support, here are strategies for m
 3. Journal of Applied Behavior Analysis - Environmental Modifications
 ```
 
+### **Non-Autism Question**
+**User asks**: "What's the best way to learn Spanish?"
+
+**Agent responds**:
+```
+I understand you're interested in learning Spanish! While I specialize in Autism Spectrum Disorder support, I can share that many families in the autism community also face language learning challenges, especially when supporting multilingual autistic children.
+
+For Spanish learning specifically, I'd recommend consulting with language learning professionals or educational specialists who can provide personalized guidance. 
+
+Is there anything autism-related I can help you with regarding language development or communication strategies for your family?
+```
+
 ## Technical Stack
 
 ### **Backend Core**
@@ -52,40 +66,47 @@ Based on evidence-based approaches for autism support, here are strategies for m
 
 ## MVP Architecture
 
-### **1. Smart Request Router** 
+### **1. LLM-First Request Router** 
 ```
 POST /api/ask
 ├── Input: { "question": "user question in English" }
-├── Intent Classification (OpenAI)
-├── Response Generation (OpenAI + Knowledge Base)
-└── Output: { "answer": "formatted response", "references": [...], "isAutismRelated": true }
+├── Universal LLM Processing (OpenAI)
+├── Intelligent Guardrail Application
+├── Response Enhancement (OpenAI + Knowledge Base)
+└── Output: { "answer": "intelligent response", "references": [...], "isAutismRelated": true/false }
 ```
 
-### **2. Three-Layer Intelligence**
+### **2. LLM-First Intelligence Architecture**
 
-#### **Layer 1: Intent Classification (The Gatekeeper)**
-- Single OpenAI call to determine if question is autism-related
-- Simple prompt: "Is this question related to autism spectrum disorder? Answer yes/no and explain briefly."
-- **Magic**: Instantly knows when to engage vs. politely decline
+#### **Layer 1: Universal LLM Processing (The Core)**
+- **Every question** is processed through OpenAI for natural, contextual responses
+- No pre-filtering or blocking of any user queries
+- **Magic**: All questions receive intelligent, thoughtful responses
 
-#### **Layer 2: Knowledge-Enhanced Response (The Expert)**
+#### **Layer 2: Intelligent Guardrail Integration (The Guide)**
+- LLM responses are enhanced with autism-focused context and boundaries
+- Contextual redirection for off-topic queries while maintaining helpfulness
+- **Magic**: Natural conversation flow with appropriate scope guidance
+
+#### **Layer 3: Knowledge-Enhanced Response (The Expert)**
 - Curated autism knowledge base (JSON file with key topics + references)
 - OpenAI prompt engineering with autism expertise context
 - **Magic**: Responses feel like talking to an autism specialist
 
-#### **Layer 3: Reference Attribution (The Scholar)**
-- Every response includes 2-4 credible sources
+#### **Layer 4: Reference Attribution (The Scholar)**
+- Every response includes 2-4 credible sources when applicable
 - Sources pulled from curated reference database
 - **Magic**: Builds trust through transparency
 
 ## MVP Features
 
 ### **✨ Core Capabilities**
-1. **Smart Question Understanding**: Handles natural language questions about autism
-2. **Intelligent Guardrails**: Politely deflects non-autism questions
-3. **Evidence-Based Answers**: Provides practical, research-backed guidance
-4. **Automatic Citations**: Every response includes relevant references
-5. **Conversational Tone**: Warm, supportive, professional communication
+1. **Universal Question Processing**: Handles any question with intelligent LLM responses
+2. **Intelligent Guardrails**: Maintains autism focus while acknowledging all questions
+3. **Contextual Redirection**: Guides off-topic queries back to autism support when appropriate
+4. **Evidence-Based Answers**: Provides practical, research-backed guidance for autism topics
+5. **Automatic Citations**: Every autism-related response includes relevant references
+6. **Conversational Tone**: Warm, supportive, professional communication for all interactions
 
 ### **🛡️ Built-in Safety**
 - No medical diagnosis attempts
@@ -95,45 +116,46 @@ POST /api/ask
 
 ## Implementation Plan
 
-### **Phase 1: Basic Question-Answer Loop (Week 1)**
+### **Phase 1: LLM-First Question-Answer Loop (Week 1)**
 ```javascript
-// Core endpoint
+// Core endpoint - LLM processes ALL questions
 app.post('/api/ask', async (req, res) => {
   const { question } = req.body;
   
-  // Step 1: Check if autism-related
-  const classification = await classifyQuestion(question);
+  // Step 1: Process ALL questions through LLM
+  const llmResponse = await processWithLLM(question);
   
-  if (!classification.isAutismRelated) {
-    return res.json({
-      answer: "I appreciate your question, but this is not my area of expertise. I'm specifically designed to provide information and support related to Autism Spectrum Disorder.",
-      isAutismRelated: false
-    });
-  }
+  // Step 2: Apply intelligent guardrails
+  const enhancedResponse = await applyIntelligentGuardrails(question, llmResponse);
   
-  // Step 2: Generate autism-focused response
-  const response = await generateAutismResponse(question);
-  
-  // Step 3: Add references
-  const references = await findRelevantReferences(question, response);
+  // Step 3: Add references if autism-related
+  const references = enhancedResponse.isAutismRelated 
+    ? await findRelevantReferences(question, enhancedResponse.answer)
+    : [];
   
   res.json({
-    answer: response,
+    answer: enhancedResponse.answer,
     references: references,
-    isAutismRelated: true
+    isAutismRelated: enhancedResponse.isAutismRelated
   });
 });
 ```
 
-### **Phase 2: Knowledge Base Integration (Week 2)**
+### **Phase 2: Intelligent Guardrail System (Week 2)**
+- Implement post-LLM guardrail processing
+- Create contextual redirection logic for off-topic queries
+- Develop autism-focused response enhancement
+- Integration with OpenAI for intelligent boundary enforcement
+
+### **Phase 3: Knowledge Base Integration (Week 3)**
 - Create curated autism knowledge JSON file
 - 50+ key topics with summaries and references
 - Categories: diagnosis, therapies, education, daily living, etc.
 - Integration with OpenAI for enhanced responses
 
-### **Phase 3: Reference System (Week 3)**
+### **Phase 4: Reference System (Week 4)**
 - Curated reference database (JSON)
-- Automatic source attribution
+- Automatic source attribution for autism-related responses
 - Quality scoring for reference selection
 - Link validation
 
@@ -166,23 +188,41 @@ app.post('/api/ask', async (req, res) => {
 
 ## OpenAI Prompt Strategy
 
-### **Classification Prompt**
+### **Universal LLM Processing Prompt**
 ```
-You are an autism specialist. Determine if this question relates to Autism Spectrum Disorder:
+You are Aurora, an intelligent autism support assistant. Process this user question and provide a helpful response.
+
+Guidelines:
+- Always acknowledge the user's question respectfully
+- If autism-related: provide expert guidance with practical strategies
+- If not autism-related: acknowledge the question, mention your autism specialization, and offer to help with autism-related aspects or guide to appropriate resources
+- Use warm, supportive tone throughout
+- Maintain professional, helpful communication
 
 Question: "{user_question}"
 
-Respond with JSON:
-{
-  "isAutismRelated": true/false,
-  "confidence": 0.0-1.0,
-  "reasoning": "brief explanation"
-}
-
-Consider autism-related topics: diagnosis, therapies, education, daily living, sensory issues, communication, behavior, family support, legal rights, funding, insurance, communities.
+Provide a thoughtful response that either:
+1. Gives expert autism guidance (if relevant)
+2. Acknowledges the question and offers autism-related help or appropriate redirection (if not directly autism-related)
 ```
 
-### **Response Generation Prompt**
+### **Intelligent Guardrail Enhancement Prompt**
+```
+You are enhancing a response to ensure it maintains autism focus while being helpful.
+
+Original response: "{llm_response}"
+User question: "{user_question}"
+
+Enhance the response to:
+- Maintain autism specialization focus
+- Provide autism-related context when possible
+- Offer appropriate redirection for off-topic queries
+- Ensure helpful, supportive tone throughout
+
+Return enhanced response with isAutismRelated flag.
+```
+
+### **Autism Response Generation Prompt**
 ```
 You are a knowledgeable autism support specialist. Provide helpful, evidence-based guidance.
 
@@ -203,15 +243,18 @@ Provide a structured response with clear sections and practical guidance.
 
 ### **Technical Metrics**
 - **Response Time**: < 3 seconds for any question
-- **Classification Accuracy**: 95%+ correct autism-related detection
+- **LLM Processing**: 100% of questions processed through LLM
+- **Guardrail Effectiveness**: 98%+ success in maintaining autism focus while being helpful
 - **Uptime**: 99%+ availability
 - **Error Rate**: < 1% server errors
 
 ### **Quality Metrics**
-- **Relevance**: Responses directly address user questions
+- **Universal Helpfulness**: All questions receive intelligent, helpful responses
+- **Autism Focus**: Autism-related questions get expert guidance
+- **Contextual Redirection**: Off-topic queries get appropriate guidance
 - **Safety**: Zero inappropriate medical advice incidents
-- **References**: 100% of responses include credible sources
-- **Tone**: Warm, professional, supportive communication
+- **References**: 100% of autism-related responses include credible sources
+- **Tone**: Warm, professional, supportive communication for all interactions
 
 ## Deployment Strategy
 
@@ -241,11 +284,12 @@ GET /api/health
 
 ## Why This MVP Will Feel Magical
 
-1. **Instant Intelligence**: Questions get smart, contextual responses in seconds
-2. **Perfect Boundaries**: Never confused about scope - always knows when to help
-3. **Expert Knowledge**: Answers feel like consulting an autism specialist
-4. **Trust Through Transparency**: Every response backed by credible sources
-5. **Always Helpful**: Either provides great autism guidance or politely redirects
+1. **Universal Intelligence**: Every question gets smart, contextual responses in seconds
+2. **Intelligent Boundaries**: Maintains autism focus while being helpful to all users
+3. **Expert Knowledge**: Autism questions feel like consulting a specialist
+4. **Contextual Guidance**: Off-topic questions get helpful redirection with autism context
+5. **Trust Through Transparency**: Every autism response backed by credible sources
+6. **Always Welcoming**: Never rejects questions - always provides value
 
 ## Future Enhancements (Post-MVP)
 - Frontend web interface
@@ -257,4 +301,4 @@ GET /api/health
 
 ---
 
-**MVP Success Definition**: A user can ask any autism-related question and get a helpful, referenced response that feels like expert guidance in under 3 seconds. Non-autism questions are politely but clearly redirected.
+**MVP Success Definition**: A user can ask any question and get an intelligent, helpful response in under 3 seconds. Autism-related questions receive expert guidance with references, while other questions get contextual redirection that maintains the autism focus while being genuinely helpful.

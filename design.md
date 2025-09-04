@@ -143,7 +143,7 @@
 ### **3. Main Input Area (THE FOCUS)**
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  💭 Ask me anything about autism...                                    │
+│  💭 Ask me anything... I'll help with autism topics or guide you elsewhere │
 │  ┌───────────────────────────────────────────────────────────────────┐ │
 │  │ How do I prepare my autistic teenager for college?               │ │
 │  │                                                                   │ │
@@ -151,29 +151,31 @@
 │                                                  [  Ask  ]           │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
-- **Purpose**: Primary interaction point - makes asking questions feel natural
-- **Elements**: Thought bubble emoji, placeholder text, large text area, prominent button
-- **Features**: Auto-resize, keyboard shortcuts (Enter to submit)
+- **Purpose**: Primary interaction point - accepts any question and provides intelligent responses
+- **Elements**: Thought bubble emoji, inclusive placeholder text, large text area, prominent button
+- **Features**: Auto-resize, keyboard shortcuts (Enter to submit), universal question acceptance
 
 ### **4. Suggested Topics**
 ```
-💡 Suggested Topics:
+💡 Popular Autism Topics:
 • Early Signs & Diagnosis    • School Support    • Daily Routines
 • Communication Tips         • Sensory Issues    • Family Resources
+
+💡 Or ask about anything - I'll help with autism topics or guide you elsewhere
 ```
-- **Purpose**: Help users discover what they can ask about
-- **Elements**: Light bulb icon, clickable topic pills
-- **Features**: Quick-start for common questions
+- **Purpose**: Help users discover autism topics while encouraging any questions
+- **Elements**: Light bulb icon, clickable topic pills, inclusive messaging
+- **Features**: Quick-start for common questions, universal question encouragement
 
 ### **5. Footer Disclaimer**
 ```
 ℹ️  Disclaimer: I am still in Beta, I can make mistakes.
-   I provide general autism information only. Always consult healthcare
-   professionals for medical advice.       🔒 Private & Secure
+   I specialize in autism support but can help with any question.
+   Always consult healthcare professionals for medical advice.  🔒 Private & Secure
 ```
 - **Purpose**: Beta transparency, legal protection and trust building
-- **Elements**: Info icon, beta warning, clear disclaimer, security badge
-- **Features**: Always visible, non-intrusive, honest about limitations
+- **Elements**: Info icon, beta warning, expanded scope disclaimer, security badge
+- **Features**: Always visible, non-intrusive, honest about capabilities and limitations
 
 ## Color Scheme (CSS Implementation Guide)
 
@@ -222,10 +224,10 @@ Tab Order:
 
 ### **Input Field States**
 ```
-Empty State:     💭 Ask me anything about autism...
+Empty State:     💭 Ask me anything... I'll help with autism topics or guide you elsewhere
 Typing State:    💭 [User's question appears here]
-Thinking State:  🤔 Thinking about your question...
-Response State:  ✅ [Response appears in conversation area]
+Thinking State:  🤔 Processing your question with AI intelligence...
+Response State:  ✅ [Intelligent response appears in conversation area]
 Error State:     ⚠️  Something went wrong. Please try again.
 ```
 
@@ -241,13 +243,15 @@ Success:    [ ✓ ]     (brief success state)
 
 ### **1. Simplicity First**
 - Clean, uncluttered interface
-- Single primary action (asking questions)
+- Single primary action (asking any question)
 - Minimal cognitive load
+- Universal question acceptance
 
 ### **2. Trust Building**
 - Professional appearance
 - Clear source attribution
-- Transparent about limitations
+- Transparent about capabilities and limitations
+- Intelligent, helpful responses for all questions
 
 ### **3. Accessibility Focus**
 - Works for users with various needs
@@ -287,4 +291,4 @@ Tablet:     768px - 1024px
 Desktop:    1024px+
 ```
 
-This design prioritizes the core user journey: **Ask Question → Get Expert Response → Build Trust** while maintaining a clean, professional, and accessible interface that serves the autism community effectively.
+This design prioritizes the core user journey: **Ask Any Question → Get Intelligent Response → Build Trust** while maintaining a clean, professional, and accessible interface that serves the autism community effectively and welcomes all users.

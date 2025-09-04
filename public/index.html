@@ -123,6 +123,29 @@
             margin-bottom: 3px;
         }
 
+        .reference a {
+            color: var(--primary-blue);
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .reference a:hover {
+            color: var(--button-hover);
+            text-decoration: none;
+        }
+
+        /* General link styling */
+        a {
+            color: var(--primary-blue);
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--button-hover);
+            text-decoration: none;
+        }
+
         /* Main Input Section */
         .input-section {
             background: var(--white);
@@ -244,12 +267,75 @@
             transition: all 0.3s ease;
             text-align: center;
             font-size: 14px;
+            font-weight: 500;
         }
 
         .topic-button:hover {
-            background: var(--primary-blue);
             color: white;
             transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Individual topic button colors */
+        .topic-button:nth-child(1) {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            border-color: #FF6B6B;
+            color: white;
+        }
+
+        .topic-button:nth-child(1):hover {
+            background: linear-gradient(135deg, #FF5252, #FF7979);
+        }
+
+        .topic-button:nth-child(2) {
+            background: linear-gradient(135deg, #4ECDC4, #7EDDD6);
+            border-color: #4ECDC4;
+            color: white;
+        }
+
+        .topic-button:nth-child(2):hover {
+            background: linear-gradient(135deg, #26A69A, #4DB6AC);
+        }
+
+        .topic-button:nth-child(3) {
+            background: linear-gradient(135deg, #45B7D1, #74C0FC);
+            border-color: #45B7D1;
+            color: white;
+        }
+
+        .topic-button:nth-child(3):hover {
+            background: linear-gradient(135deg, #2196F3, #42A5F5);
+        }
+
+        .topic-button:nth-child(4) {
+            background: linear-gradient(135deg, #96CEB4, #B8E6B8);
+            border-color: #96CEB4;
+            color: white;
+        }
+
+        .topic-button:nth-child(4):hover {
+            background: linear-gradient(135deg, #81C784, #A5D6A7);
+        }
+
+        .topic-button:nth-child(5) {
+            background: linear-gradient(135deg, #FFEAA7, #FFD93D);
+            border-color: #FFEAA7;
+            color: #2D3436;
+        }
+
+        .topic-button:nth-child(5):hover {
+            background: linear-gradient(135deg, #FDCB6E, #E17055);
+            color: white;
+        }
+
+        .topic-button:nth-child(6) {
+            background: linear-gradient(135deg, #DDA0DD, #E1BEE7);
+            border-color: #DDA0DD;
+            color: white;
+        }
+
+        .topic-button:nth-child(6):hover {
+            background: linear-gradient(135deg, #BA68C8, #CE93D8);
         }
 
         /* Footer Disclaimer */
@@ -310,6 +396,198 @@
             }
         }
 
+        /* Input Tabs */
+        .input-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-light);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+
+        .tab-button:hover {
+            color: var(--primary-blue);
+        }
+
+        .input-content {
+            display: block;
+        }
+
+        .input-content.hidden {
+            display: none;
+        }
+
+        /* File Upload Styles */
+        .file-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--background);
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary-blue);
+            background: #f0f7ff;
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--primary-blue);
+            background: #e3f2fd;
+        }
+
+        .file-upload-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-icon {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        .file-text strong {
+            color: var(--text-dark);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .file-text p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .file-info {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin-top: 10px;
+        }
+
+        .file-details {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .file-size {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .remove-file {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-file:hover {
+            background: #ff5252;
+        }
+
+        /* Feedback Buttons */
+        .feedback-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .feedback-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .feedback-button {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .feedback-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .thumbs-up {
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+        .thumbs-up:hover {
+            background: #28a745;
+            color: white;
+        }
+
+        .thumbs-up.active {
+            background: #28a745;
+            color: white;
+        }
+
+        .thumbs-down {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .thumbs-down:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .thumbs-down.active {
+            background: #dc3545;
+            color: white;
+        }
+
         /* Error States */
         .error-message {
             background: #f8d7da;
@@ -344,14 +622,46 @@
         <!-- Main Input -->
         <section class="input-section">
             <div class="input-header">
-                💭 Ask me anything about autism...
+                💭 Ask me anything... I'll help with autism topics or guide you elsewhere
             </div>
-            <textarea 
-                id="questionInput" 
-                class="question-input" 
-                placeholder="How do I prepare my autistic teenager for college?"
-                maxlength="2000"
-            ></textarea>
+            
+            <!-- Input Tabs -->
+            <div class="input-tabs">
+                <button class="tab-button active" id="textTab">📝 Type Question</button>
+                <button class="tab-button" id="fileTab">📄 Upload File</button>
+            </div>
+            
+            <!-- Text Input -->
+            <div class="input-content" id="textInput">
+                <textarea 
+                    id="questionInput" 
+                    class="question-input" 
+                    placeholder="How do I prepare my autistic teenager for college?"
+                    maxlength="2000"
+                ></textarea>
+            </div>
+            
+            <!-- File Input -->
+            <div class="input-content hidden" id="fileInput">
+                <div class="file-upload-area" id="fileUploadArea">
+                    <div class="file-upload-content">
+                        <div class="file-icon">📄</div>
+                        <div class="file-text">
+                            <strong>Click to upload or drag and drop</strong>
+                            <p>Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInputElement" accept=".pdf,.doc,.docx,.txt" style="display: none;">
+                </div>
+                <div class="file-info hidden" id="fileInfo">
+                    <div class="file-details">
+                        <span class="file-name" id="fileName"></span>
+                        <span class="file-size" id="fileSize"></span>
+                        <button class="remove-file" id="removeFile">×</button>
+                    </div>
+                </div>
+            </div>
+            
             <div class="input-controls">
                 <span class="character-count" id="charCount">0 / 2000</span>
                 <button class="ask-button" id="askButton">
@@ -363,7 +673,7 @@
         <!-- Suggested Topics -->
         <section class="topics-section">
             <div class="topics-header">
-                💡 Suggested Topics:
+                💡 Popular Autism Topics:
             </div>
             <div class="topics-grid">
                 <button class="topic-button" data-question="What are early signs of autism in toddlers?">Early Signs & Diagnosis</button>
@@ -373,13 +683,16 @@
                 <button class="topic-button" data-question="How to handle sensory overload in autism?">Sensory Issues</button>
                 <button class="topic-button" data-question="Where to find autism support groups for families?">Family Resources</button>
             </div>
+            <div style="margin-top: 15px; text-align: center; color: var(--text-light); font-size: 0.9rem;">
+                💡 Or ask about anything - I'll help with autism topics or guide you elsewhere
+            </div>
         </section>
 
         <!-- Disclaimer -->
         <footer class="disclaimer">
             <strong>ℹ️ Disclaimer:</strong> I am still in Beta, I can make mistakes. 
-            I provide general autism information only. Always consult healthcare 
-            professionals for medical advice. 🔒 Private & Secure
+            I specialize in autism support but can help with any question.
+            Always consult healthcare professionals for medical advice. 🔒 Private & Secure
         </footer>
     </div>
 

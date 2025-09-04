@@ -10,13 +10,13 @@ const { setupRoutes } = require('./src/routes');
 const { errorHandler, requestLogger } = require('./src/middleware');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 // Security and performance middleware
 app.use(helmet());
 app.use(compression());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || 'http://localhost:3002',
   credentials: true
 }));
 
@@ -66,6 +66,7 @@ process.on('SIGTERM', () => {
 app.listen(PORT, () => {
   console.log(`🧩 Aurora Autism Assistant running on port ${PORT}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`🌐 Web interface: http://localhost:${PORT}`);
   console.log(`🤖 Ready to help with autism-related questions!`);
 });
 

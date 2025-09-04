@@ -84,11 +84,37 @@ To create a reliable virtual assistant that:
 - Community-based programs and activities
 - Peer support networks
 
+## LLM Integration & Response Strategy
+
+### **Always Call LLM for User Questions**
+The system is designed to **always** call the LLM (Large Language Model) when a user asks any question, regardless of topic scope. This ensures:
+
+- **Comprehensive Response Generation**: Every user query receives a thoughtful, contextual response
+- **Natural Conversation Flow**: Users experience seamless interaction without abrupt rejections
+- **Intelligent Guardrail Integration**: LLM responses are enhanced with appropriate guardrails and boundary enforcement
+- **Contextual Awareness**: The LLM can provide nuanced responses that acknowledge the user's question while maintaining scope boundaries
+
+### **Guardrail-Enhanced LLM Responses**
+Instead of blocking off-topic questions, the system will:
+1. **Process all questions through the LLM** to generate appropriate responses
+2. **Apply intelligent guardrails** that:
+   - Acknowledge the user's question respectfully
+   - Provide autism-related context when possible
+   - Gently redirect to appropriate resources for off-topic queries
+   - Maintain helpful and supportive tone throughout
+
+### **Response Examples for Off-Topic Queries**
+Instead of the previous rigid boundary message, the LLM will generate responses like:
+> "I understand you're asking about [topic]. While I specialize in Autism Spectrum Disorder support, I can share that many families dealing with autism also face similar challenges. For specific guidance on [topic], I'd recommend consulting with [appropriate professional type]. Is there anything autism-related I can help you with regarding your situation?"
+
 ## Guardrails & Limitations
 
-### **Strict Boundary Enforcement**
-When asked about topics outside of autism, the agent will respond with:
-> "I appreciate your question, but this is not my area of expertise. I'm specifically designed to provide information and support related to Autism Spectrum Disorder. For questions outside of autism, I'd recommend consulting with appropriate professionals or specialized resources."
+### **Intelligent Boundary Enforcement**
+The system maintains strict autism focus while using the LLM to provide helpful, contextual responses that:
+- Always acknowledge the user's question
+- Provide autism-related insights when relevant
+- Offer appropriate redirection for off-topic queries
+- Maintain a supportive and professional tone
 
 ### **Topics Outside Scope Include:**
 - Other medical conditions (unless directly related to autism comorbidities)
@@ -111,6 +137,20 @@ When asked about topics outside of autism, the agent will respond with:
 
 ## Technical Implementation
 
+### **LLM Integration Requirements**
+
+#### **Core LLM Processing**
+- **Universal Query Processing**: Every user input must be sent to the LLM for response generation
+- **No Pre-filtering**: The system should not block or filter queries before LLM processing
+- **Context Preservation**: Maintain conversation history and context for coherent responses
+- **Response Enhancement**: Apply guardrails and scope boundaries to LLM-generated responses
+
+#### **Guardrail Implementation Strategy**
+- **Post-LLM Processing**: Apply autism-specific guardrails after LLM response generation
+- **Contextual Boundary Enforcement**: Use LLM capabilities to create natural, helpful responses that maintain scope
+- **Intelligent Redirection**: Guide users back to autism-related topics when appropriate
+- **Professional Referral Integration**: Seamlessly incorporate appropriate resource recommendations
+
 ### **Frontend User Interface**
 - Interactive web-based chat interface for user questions
 - Responsive design for accessibility across devices
@@ -126,25 +166,29 @@ When asked about topics outside of autism, the agent will respond with:
 - Multi-modal content support (text, links to resources)
 - Culturally diverse perspectives and experiences
 
-### **Intent Classification System**
-- Robust topic classification to identify autism-related vs. off-topic queries
-- Confidence scoring for boundary decisions
-- Escalation protocols for ambiguous queries
-- Continuous learning from user interactions
+### **LLM Integration System**
+- **Primary Response Engine**: All user queries are processed through the LLM for natural, contextual responses
+- **Guardrail Integration**: LLM responses are enhanced with intelligent boundary enforcement
+- **Context-Aware Processing**: System maintains conversation context while applying appropriate scope boundaries
+- **Dynamic Response Generation**: Responses adapt to user needs while maintaining autism focus
 
-### **Response Framework**
-- Structured response templates for common topics
-- Citation of sources and evidence levels
-- Clear disclaimers about professional consultation needs
-- Empathetic and supportive tone throughout
+### **Enhanced Response Framework**
+- **LLM-Generated Responses**: Natural, conversational responses for all queries
+- **Intelligent Guardrails**: Contextual boundary enforcement that acknowledges user questions
+- **Autism-Focused Insights**: Responses include relevant autism context when applicable
+- **Professional Referrals**: Appropriate resource recommendations for off-topic queries
+- **Citation Integration**: Sources and evidence levels embedded in LLM responses
+- **Empathetic Tone**: Consistent supportive and professional communication style
 
 ## Success Criteria
 
 ### **Primary Metrics**
 - **Accuracy**: 95%+ accuracy in autism-related information provided
-- **Boundary Adherence**: 98%+ success rate in identifying and deflecting off-topic queries
+- **LLM Response Quality**: High-quality, contextual responses for all user queries
+- **Intelligent Guardrail Effectiveness**: 98%+ success rate in maintaining autism focus while acknowledging all questions
 - **User Satisfaction**: Positive feedback from autism community stakeholders
 - **Safety**: Zero incidents of inappropriate medical advice or harmful information
+- **Conversation Flow**: Natural, uninterrupted user experience with appropriate scope guidance
 
 ### **Secondary Metrics**
 - Response time and system performance

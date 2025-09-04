@@ -15,23 +15,32 @@ function setupRoutes(app, aurora) {
     validateQuestion,
     async (req, res, next) => {
       try {
-        const { question } = req.body;
+        const { question, fileContent, fileName, fileType } = req.body;
         const startTime = req.startTime;
         
-        console.log(`🧩 Aurora processing: "${question.substring(0, 100)}${question.length > 100 ? '...' : ''}"`);
+        let processedQuestion = question;
+        
+        // If file content is provided, enhance the question
+        if (fileContent && fileName) {
+          console.log(`📄 Aurora processing file: ${fileName} (${fileType})`);
+          processedQuestion = `File Analysis Request: ${question}\n\nFile: ${fileName}\nFile Type: ${fileType}\n\nPlease analyze the uploaded file content and provide insights related to autism support. The file content is: ${fileContent.substring(0, 2000)}${fileContent.length > 2000 ? '...' : ''}`;
+        }
+        
+        console.log(`🧩 Aurora processing: "${processedQuestion.substring(0, 100)}${processedQuestion.length > 100 ? '...' : ''}"`);
         
         // Process the question through Aurora's intelligence layers
-        const response = await aurora.processQuestion(question, {
+        const response = await aurora.processQuestion(processedQuestion, {
           timestamp: new Date().toISOString(),
           userAgent: req.get('User-Agent'),
-          ip: req.ip
+          ip: req.ip,
+          hasFile: !!fileContent
         });
         
         // Add response timing
         response.responseTime = Date.now() - startTime;
         
         // Log successful response
-        console.log(`🟢 Aurora responded in ${response.responseTime}ms - Topic: ${response.isAutismRelated ? 'Autism' : 'Off-topic'}`);
+        console.log(`🟢 Aurora responded in ${response.responseTime}ms - Topic: ${response.isAutismRelated ? 'Autism' : 'Off-topic'}${fileContent ? ' - File Analysis' : ''}`);
         
         // Send response with Aurora branding
         res.json({
@@ -193,6 +202,67 @@ function setupRoutes(app, aurora) {
         suicide_prevention: 'National Suicide Prevention Lifeline: 988'
       }
     });
+  });
+
+  // Feedback endpoint
+  app.post('/api/feedback', (req, res) => {
+    try {
+      const { feedbackId, type, timestamp, question, answer } = req.body;
+      
+      console.log(`📊 Feedback received: ${type} for ${feedbackId} at ${timestamp}`);
+      
+      // Process feedback through Aurora's reinforcement learning system
+      const feedbackResult = aurora.processFeedback(feedbackId, type, question, answer);
+      
+      // Store additional metadata
+      const feedback = {
+        feedbackId,
+        type,
+        timestamp: new Date().toISOString(),
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        question: question,
+        answer: answer
+      };
+      
+      // In a real implementation, you'd save this to a database
+      console.log('💾 Feedback processed and stored:', feedback);
+      console.log('🧠 Reinforcement learning updated:', feedbackResult);
+      
+      res.json({
+        status: 'success',
+        message: 'Feedback received and processed',
+        feedbackId: feedbackId,
+        analytics: feedbackResult
+      });
+      
+    } catch (error) {
+      console.error('🔴 Feedback processing error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to process feedback'
+      });
+    }
+  });
+
+  // Analytics endpoint for feedback data
+  app.get('/api/analytics', (req, res) => {
+    try {
+      const analytics = aurora.getFeedbackAnalytics();
+      
+      res.json({
+        status: 'success',
+        analytics: analytics,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('🔴 Analytics error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to retrieve analytics'
+      });
+    }
   });
 
   // Quick example endpoint for testing
