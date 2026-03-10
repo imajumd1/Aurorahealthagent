@@ -997,12 +997,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // Open FAQ modal for a specific topic
 async function openFAQModal(topicId) {
     const modal = document.getElementById('faqModal');
-    const modalTitle = document.getElementById('modalTitle');
+    const modalTitle = document.getElementById('faqModalTitle');
     
     try {
         // Show modal with loading state
         modal.classList.add('active');
-        modalTitle.textContent = 'Loading FAQs...';
+        if (modalTitle) modalTitle.textContent = 'Loading FAQs...';
         
         // Fetch FAQ data from API
         const response = await fetch(`${API_BASE}/faqs/${topicId}`);
@@ -1017,7 +1017,7 @@ async function openFAQModal(topicId) {
         currentFAQAnswers = {};
         
         // Update modal title
-        modalTitle.textContent = currentFAQData.title;
+        if (modalTitle) modalTitle.textContent = currentFAQData.title;
         
         // Update FAQ info text with topic name
         const faqTopicName = document.getElementById('faqTopicName');
