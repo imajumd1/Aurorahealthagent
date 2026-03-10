@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora - Feedback Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: #FAFBFC;
+            color: #3D4451;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #6BBFB5;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7A8194;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(107, 191, 181, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #F5FBFA, #EFF8F7);
+            border-radius: 12px;
+            border: 2px solid #6BBFB5;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #6BBFB5;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7A8194;
+            font-weight: 600;
+        }
+
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #6BBFB5;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(107, 191, 181, 0.25);
+        }
+
+        .download-button:hover {
+            background: #5AA89E;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(107, 191, 181, 0.35);
+        }
+
+        .info-box {
+            background: #F0F8F7;
+            border-left: 4px solid #6BBFB5;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            line-height: 1.7;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #6BBFB5;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← Back to Aurora</a>
+    
+    <div class="header">
+        <h1>∞ Feedback Dashboard</h1>
+        <p class="subtitle">Aurora User Feedback Analytics</p>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top: 0; color: #3D4451;">📊 Feedback Statistics</h2>
+        
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-box">
+                <div class="stat-number" id="totalFeedback">-</div>
+                <div class="stat-label">Total Feedback</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="positiveFeedback">-</div>
+                <div class="stat-label">👍 Positive</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="negativeFeedback">-</div>
+                <div class="stat-label">👎 Negative</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="withComments">-</div>
+                <div class="stat-label">💬 With Comments</div>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="/api/feedback/download" class="download-button">
+                📥 Download Feedback CSV
+            </a>
+        </div>
+
+        <div class="info-box">
+            <strong>📁 CSV File Location:</strong><br>
+            <code id="filePath" style="font-size: 0.9rem; color: #5A2828;">Loading...</code>
+            <br><br>
+            <strong>What's included:</strong><br>
+            • Timestamp of feedback<br>
+            • Feedback type (positive/negative)<br>
+            • Original question and answer<br>
+            • User comments (for negative feedback)<br>
+            • User agent and IP address
+        </div>
+    </div>
+
+    <script>
+        // Load feedback statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/feedback/stats');
+                const data = await response.json();
+                
+                if (data.status === 'success' && data.statistics) {
+                    document.getElementById('totalFeedback').textContent = data.statistics.totalFeedback;
+                    document.getElementById('positiveFeedback').textContent = data.statistics.positive;
+                    document.getElementById('negativeFeedback').textContent = data.statistics.negative;
+                    document.getElementById('withComments').textContent = data.statistics.withComments;
+                    document.getElementById('filePath').textContent = data.statistics.filePath || 'Not yet created';
+                } else {
+                    console.error('Failed to load stats');
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                document.getElementById('totalFeedback').textContent = '0';
+                document.getElementById('positiveFeedback').textContent = '0';
+                document.getElementById('negativeFeedback').textContent = '0';
+                document.getElementById('withComments').textContent = '0';
+                document.getElementById('filePath').textContent = 'No feedback yet';
+            }
+        }
+
+        // Load stats on page load
+        loadStats();
+
+        // Refresh stats every 10 seconds
+        setInterval(loadStats, 10000);
+    </script>
+</body>
+</html>

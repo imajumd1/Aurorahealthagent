@@ -3,6 +3,8 @@
  */
 
 const { validateQuestion, trackResponseTime } = require('../middleware');
+const { getFAQsByTopic, getAllFAQTopics } = require('../data/topic-faqs');
+const { logFeedback, getFeedbackFilePath, getFeedbackStats } = require('../utils/feedback-logger');
 
 /**
  * Setup all routes for the Aurora application
@@ -132,6 +134,57 @@ function setupRoutes(app, aurora) {
     });
   });
 
+  // FAQ endpoint - Get frequently asked questions for a specific topic
+  app.get('/api/faqs/:topicId', (req, res) => {
+    try {
+      const { topicId } = req.params;
+      const faqs = getFAQsByTopic(topicId);
+      
+      if (!faqs) {
+        return res.status(404).json({
+          error: 'Topic not found',
+          message: `No FAQs found for topic: ${topicId}`,
+          availableTopics: getAllFAQTopics()
+        });
+      }
+      
+      console.log(`📚 Serving ${faqs.questions.length} FAQs for topic: ${topicId}`);
+      
+      res.json({
+        topic: faqs,
+        message: 'These are the most frequently asked questions for this topic',
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('🔴 FAQ retrieval error:', error);
+      res.status(500).json({
+        error: 'Failed to retrieve FAQs',
+        message: error.message
+      });
+    }
+  });
+
+  // Get all FAQ topics
+  app.get('/api/faqs', (req, res) => {
+    try {
+      const allTopics = getAllFAQTopics();
+      
+      res.json({
+        topics: allTopics,
+        message: 'All available FAQ topics',
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('🔴 FAQ topics error:', error);
+      res.status(500).json({
+        error: 'Failed to retrieve FAQ topics',
+        message: error.message
+      });
+    }
+  });
+
   // System status endpoint
   app.get('/api/status', async (req, res) => {
     try {
@@ -205,35 +258,43 @@ function setupRoutes(app, aurora) {
     });
   });
 
-  // Feedback endpoint
+  // Feedback endpoint with CSV logging
   app.post('/api/feedback', (req, res) => {
     try {
-      const { feedbackId, type, timestamp, question, answer } = req.body;
+      const { feedbackId, type, timestamp, question, answer, comment } = req.body;
       
-      console.log(`📊 Feedback received: ${type} for ${feedbackId} at ${timestamp}`);
+      console.log(`📊 Feedback received: ${type} for ${feedbackId}`);
+      
+      // Prepare feedback data for CSV logging
+      const feedbackData = {
+        feedbackId,
+        type,
+        timestamp: timestamp || new Date().toISOString(),
+        question: question || '',
+        answer: answer || '',
+        comment: comment || '',
+        userAgent: req.get('User-Agent'),
+        ipAddress: req.ip
+      };
+      
+      // Log to CSV file
+      const logResult = logFeedback(feedbackData);
+      
+      if (!logResult.success) {
+        throw new Error(logResult.message);
+      }
       
       // Process feedback through Aurora's reinforcement learning system
       const feedbackResult = aurora.processFeedback(feedbackId, type, question, answer);
       
-      // Store additional metadata
-      const feedback = {
-        feedbackId,
-        type,
-        timestamp: new Date().toISOString(),
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        question: question,
-        answer: answer
-      };
-      
-      // In a real implementation, you'd save this to a database
-      console.log('💾 Feedback processed and stored:', feedback);
+      console.log('✅ Feedback saved to CSV:', logResult.filePath);
       console.log('🧠 Reinforcement learning updated:', feedbackResult);
       
       res.json({
         status: 'success',
-        message: 'Feedback received and processed',
+        message: 'Feedback received and saved',
         feedbackId: feedbackId,
+        filePath: logResult.filePath,
         analytics: feedbackResult
       });
       
@@ -241,7 +302,63 @@ function setupRoutes(app, aurora) {
       console.error('🔴 Feedback processing error:', error);
       res.status(500).json({
         status: 'error',
-        message: 'Failed to process feedback'
+        message: 'Failed to process feedback',
+        error: error.message
+      });
+    }
+  });
+
+  // Get feedback statistics and CSV file path
+  app.get('/api/feedback/stats', (req, res) => {
+    try {
+      const stats = getFeedbackStats();
+      
+      res.json({
+        status: 'success',
+        statistics: stats,
+        message: 'Feedback statistics retrieved successfully',
+        downloadUrl: '/api/feedback/download'
+      });
+      
+    } catch (error) {
+      console.error('🔴 Feedback stats error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to retrieve feedback statistics'
+      });
+    }
+  });
+
+  // Download feedback CSV file
+  app.get('/api/feedback/download', (req, res) => {
+    try {
+      const filePath = getFeedbackFilePath();
+      const fs = require('fs');
+      
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'No feedback data available yet'
+        });
+      }
+      
+      console.log('📥 Downloading feedback CSV:', filePath);
+      
+      res.download(filePath, 'aurora-feedback.csv', (err) => {
+        if (err) {
+          console.error('Download error:', err);
+          res.status(500).json({
+            status: 'error',
+            message: 'Failed to download feedback file'
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('🔴 Feedback download error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to download feedback file'
       });
     }
   });
@@ -294,6 +411,11 @@ function setupRoutes(app, aurora) {
       available_endpoints: [
         'POST /api/ask - Ask Aurora a question',
         'GET /api/topics - Get suggested topics',
+        'GET /api/faqs/:topicId - Get FAQs for a topic',
+        'GET /api/faqs - Get all FAQ topics',
+        'POST /api/feedback - Submit user feedback',
+        'GET /api/feedback/stats - Get feedback statistics',
+        'GET /api/feedback/download - Download feedback CSV',
         'GET /api/status - System status',
         'GET /api/aurora - About Aurora',
         'GET /api/example - Example response',
