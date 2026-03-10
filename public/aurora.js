@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedBookmarks) {
         try {
             bookmarkedResponses = new Set(JSON.parse(savedBookmarks));
+            updateBookmarkCount();
         } catch (e) {
             console.log('Failed to load bookmarks');
         }
@@ -806,6 +807,11 @@ function handleBookmark(answerId) {
         button.innerHTML = '🔖 Bookmark';
         showNotification('Bookmark removed', 'var(--text-muted)');
         console.log('✅ Bookmark removed');
+        
+        // Remove from bookmark data
+        const existingBookmarkData = JSON.parse(localStorage.getItem('aurora-bookmark-data') || '{}');
+        delete existingBookmarkData[answerId];
+        localStorage.setItem('aurora-bookmark-data', JSON.stringify(existingBookmarkData));
     } else {
         // Add bookmark with content
         bookmarkedResponses.add(answerId);
@@ -830,6 +836,9 @@ function handleBookmark(answerId) {
     
     // Store bookmark IDs
     localStorage.setItem('aurora-bookmarks', JSON.stringify([...bookmarkedResponses]));
+    
+    // Update bookmark count in header
+    updateBookmarkCount();
 }
 
 // Handle share action
@@ -1180,6 +1189,168 @@ function closeFAQModal() {
 
 // ========================================
 // End FAQ Modal Functionality
+// ========================================
+
+// ========================================
+// Bookmarks Modal Functionality
+// ========================================
+
+// Initialize bookmarks modal event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const viewBookmarksBtn = document.getElementById('viewBookmarksBtn');
+    const bookmarksModal = document.getElementById('bookmarksModal');
+    const closeBookmarksBtn = document.getElementById('closeBookmarksModal');
+    
+    if (viewBookmarksBtn) {
+        viewBookmarksBtn.addEventListener('click', openBookmarksModal);
+    }
+    
+    if (closeBookmarksBtn) {
+        closeBookmarksBtn.addEventListener('click', closeBookmarksModal);
+    }
+    
+    // Close modal on overlay click
+    if (bookmarksModal) {
+        bookmarksModal.addEventListener('click', function(e) {
+            if (e.target === bookmarksModal) {
+                closeBookmarksModal();
+            }
+        });
+    }
+    
+    // Update bookmark count on page load
+    updateBookmarkCount();
+});
+
+function openBookmarksModal() {
+    const modal = document.getElementById('bookmarksModal');
+    modal.classList.add('active');
+    displayBookmarks();
+}
+
+function closeBookmarksModal() {
+    const modal = document.getElementById('bookmarksModal');
+    modal.classList.remove('active');
+}
+
+function displayBookmarks() {
+    const bookmarksList = document.getElementById('bookmarksList');
+    const bookmarksEmpty = document.getElementById('bookmarksEmpty');
+    
+    // Get all bookmarks from localStorage
+    const bookmarkData = JSON.parse(localStorage.getItem('aurora-bookmark-data') || '{}');
+    const bookmarkIds = [...bookmarkedResponses];
+    
+    if (bookmarkIds.length === 0) {
+        bookmarksList.innerHTML = '';
+        bookmarksEmpty.style.display = 'block';
+        return;
+    }
+    
+    bookmarksEmpty.style.display = 'none';
+    
+    // Build bookmarks list HTML
+    let html = '';
+    bookmarkIds.forEach((bookmarkId, index) => {
+        const data = bookmarkData[bookmarkId];
+        if (!data) return;
+        
+        const date = new Date(data.timestamp);
+        const formattedDate = date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        const truncatedAnswer = data.answer.length > 200 
+            ? data.answer.substring(0, 200) + '...' 
+            : data.answer;
+        
+        html += `
+            <div class="bookmark-item" data-bookmark-id="${bookmarkId}">
+                <div class="bookmark-question">${data.question || 'Question not available'}</div>
+                <div class="bookmark-answer">${truncatedAnswer}</div>
+                <div class="bookmark-meta">
+                    <span class="bookmark-date">Saved ${formattedDate}</span>
+                    <div class="bookmark-actions">
+                        <button class="bookmark-action-btn view" onclick="viewFullBookmark('${bookmarkId}')">
+                            👁️ View
+                        </button>
+                        <button class="bookmark-action-btn remove" onclick="removeBookmark('${bookmarkId}')">
+                            🗑️ Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    bookmarksList.innerHTML = html;
+}
+
+function updateBookmarkCount() {
+    const countBadge = document.getElementById('bookmarkCount');
+    if (countBadge) {
+        countBadge.textContent = bookmarkedResponses.size;
+        countBadge.style.display = bookmarkedResponses.size > 0 ? 'block' : 'none';
+    }
+}
+
+function viewFullBookmark(bookmarkId) {
+    const bookmarkData = JSON.parse(localStorage.getItem('aurora-bookmark-data') || '{}');
+    const data = bookmarkData[bookmarkId];
+    
+    if (!data) {
+        showNotification('Bookmark not found', '#FFB8B8');
+        return;
+    }
+    
+    // Close bookmarks modal
+    closeBookmarksModal();
+    
+    // Scroll to conversation area
+    const convoBody = document.getElementById('convoBody');
+    if (convoBody) {
+        convoBody.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    showNotification('Viewing bookmarked response', 'var(--sage)');
+}
+
+function removeBookmark(bookmarkId) {
+    if (!confirm('Are you sure you want to remove this bookmark?')) {
+        return;
+    }
+    
+    // Remove from Set
+    bookmarkedResponses.delete(bookmarkId);
+    
+    // Update localStorage
+    localStorage.setItem('aurora-bookmarks', JSON.stringify([...bookmarkedResponses]));
+    
+    // Remove from bookmark data
+    const bookmarkData = JSON.parse(localStorage.getItem('aurora-bookmark-data') || '{}');
+    delete bookmarkData[bookmarkId];
+    localStorage.setItem('aurora-bookmark-data', JSON.stringify(bookmarkData));
+    
+    // Update UI
+    const bookmarkButton = document.getElementById(`bookmark-${bookmarkId}`);
+    if (bookmarkButton) {
+        bookmarkButton.classList.remove('bookmarked');
+        bookmarkButton.innerHTML = '🔖 Bookmark';
+    }
+    
+    // Refresh bookmarks display
+    displayBookmarks();
+    updateBookmarkCount();
+    
+    showNotification('Bookmark removed', 'var(--text-muted)');
+}
+
+// ========================================
+// End Bookmarks Modal Functionality
 // ========================================
 
 // Accessibility improvements

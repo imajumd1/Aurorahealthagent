@@ -1,0 +1,97 @@
+╔══════════════════════════════════════════════════════════════╗
+║  🔖 AURORA BOOKMARKS FEATURE - QUICK TEST CHECKLIST          ║
+╚══════════════════════════════════════════════════════════════╝
+
+🌐 Open: http://localhost:3000
+
+═══════════════════════════════════════════════════════════════
+
+STEP 1: CHECK HEADER BUTTON
+  ☐ Look at TOP RIGHT corner of header (purple gradient area)
+  ☐ See "🔖 Bookmarks" button with white translucent background
+  ☐ Badge shows "0" (or hidden if no bookmarks)
+
+═══════════════════════════════════════════════════════════════
+
+STEP 2: CREATE A BOOKMARK
+  ☐ Type question: "What are early signs of autism?"
+  ☐ Click "Send to Aurora"
+  ☐ Wait for Aurora's answer
+  ☐ Click "🔖 Bookmark" button below answer
+  ☐ See notification: "Response bookmarked!"
+  ☐ Button changes to "✅ Bookmarked"
+  ☐ Header badge updates to "1"
+
+═══════════════════════════════════════════════════════════════
+
+STEP 3: ADD MORE BOOKMARKS
+  ☐ Click "School Support" topic button
+  ☐ FAQ modal opens with first question
+  ☐ Wait for answer
+  ☐ Click "🔖 Bookmark" in modal
+  ☐ Header badge updates to "2"
+  ☐ Click "Next →"
+  ☐ Bookmark another answer
+  ☐ Header badge updates to "3"
+
+═══════════════════════════════════════════════════════════════
+
+STEP 4: OPEN BOOKMARKS MODAL
+  ☐ Click "🔖 Bookmarks" button in header
+  ☐ Beautiful modal slides in
+  ☐ Title: "Your Bookmarks"
+  ☐ Subtitle: "Saved responses from your conversations"
+  ☐ See list of all 3 bookmarks
+
+═══════════════════════════════════════════════════════════════
+
+STEP 5: CHECK BOOKMARK DISPLAY
+Each bookmark should show:
+  ☐ Question text (bold, prominent)
+  ☐ Answer preview (faded at bottom)
+  ☐ Save date/time at bottom
+  ☐ Two buttons: "👁️ View" and "🗑️ Remove"
+
+═══════════════════════════════════════════════════════════════
+
+STEP 6: VIEW FULL BOOKMARK
+  ☐ Click "👁️ View" button
+  ☐ Modal closes
+  ☐ Page scrolls to conversation area
+  ☐ Notification appears
+
+═══════════════════════════════════════════════════════════════
+
+STEP 7: REMOVE A BOOKMARK
+  ☐ Reopen bookmarks modal
+  ☐ Click "🗑️ Remove" button
+  ☐ Confirmation dialog appears
+  ☐ Click "OK"
+  ☐ Bookmark disappears from list
+  ☐ Header badge decrements (now "2")
+  ☐ Notification: "Bookmark removed"
+
+═══════════════════════════════════════════════════════════════
+
+STEP 8: TEST PERSISTENCE
+  ☐ Refresh page (F5 or Cmd+R)
+  ☐ Header badge still shows "2"
+  ☐ Open bookmarks modal
+  ☐ All remaining bookmarks still there
+
+═══════════════════════════════════════════════════════════════
+
+STEP 9: TEST EMPTY STATE
+  ☐ Remove all remaining bookmarks
+  ☐ Open bookmarks modal
+  ☐ See friendly empty state:
+    • 🔖 icon (large, faded)
+    • "You haven't bookmarked any responses yet."
+    • Helpful instruction text
+
+═══════════════════════════════════════════════════════════════
+
+✅ ALL TESTS PASSED? → Ready to push to GitHub!
+❌ ANY ISSUES? → Let me know and I'll fix them!
+
+═══════════════════════════════════════════════════════════════

@@ -79,6 +79,45 @@ body::before {
   animation: fadeDown 0.8s ease both;
 }
 
+.bookmarks-header-btn {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bookmarks-header-btn:hover {
+  background: rgba(255,255,255,0.3);
+  border-color: rgba(255,255,255,0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(255,255,255,0.2);
+}
+
+.bookmark-badge {
+  background: rgba(255,255,255,0.95);
+  color: var(--sage);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
 /* organic wave bottom */
 .header::after {
   content: '';
@@ -894,6 +933,129 @@ textarea:focus {
   background: linear-gradient(135deg, var(--rose) 0%, var(--peach) 100%);
 }
 
+/* Bookmarks modal */
+.bookmarks-modal .modal {
+  max-width: 800px;
+}
+
+.bookmarks-modal .modal-header {
+  background: linear-gradient(135deg, var(--sage) 0%, var(--lavender) 100%);
+}
+
+.bookmarks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bookmark-item {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  transition: all 0.2s;
+}
+
+.bookmark-item:hover {
+  border-color: var(--sage-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.bookmark-question {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.bookmark-answer {
+  font-size: 0.88rem;
+  color: var(--text-soft);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  max-height: 100px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bookmark-answer::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+}
+
+.bookmark-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.bookmark-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.bookmark-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.bookmark-action-btn {
+  padding: 6px 14px;
+  border-radius: 18px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid;
+  transition: all 0.2s;
+  background: white;
+}
+
+.bookmark-action-btn.view {
+  color: var(--sage);
+  border-color: var(--sage-light);
+}
+
+.bookmark-action-btn.view:hover {
+  background: var(--sage-pale);
+}
+
+.bookmark-action-btn.remove {
+  color: var(--rose);
+  border-color: #edbbc8;
+}
+
+.bookmark-action-btn.remove:hover {
+  background: var(--rose-pale);
+}
+
+.bookmarks-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.bookmarks-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.bookmarks-empty-text {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
 .comment-textarea {
   width: 100%;
   min-height: 120px;
@@ -1005,6 +1167,13 @@ textarea:focus {
   .header { padding: 36px 20px 44px; }
   .card-header, .tab-row, .input-body, .convo-body,
   .topics-grid, .topics-footnote { padding-left: 16px; padding-right: 16px; }
+  
+  .bookmarks-header-btn {
+    top: 12px;
+    right: 12px;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
 }
 </style>
 </head>
@@ -1017,6 +1186,13 @@ textarea:focus {
     <div class="header-orb orb-1"></div>
     <div class="header-orb orb-2"></div>
     <div class="header-orb orb-3"></div>
+    
+    <!-- Bookmarks Button -->
+    <button class="bookmarks-header-btn" id="viewBookmarksBtn">
+      🔖 Bookmarks
+      <span class="bookmark-badge" id="bookmarkCount">0</span>
+    </button>
+    
     <div class="header-inner">
       <div class="aurora-badge">
         <div class="infinity-icon">∞</div>
@@ -1208,6 +1384,31 @@ textarea:focus {
       <div class="modal-navigation">
         <button class="nav-btn previous" id="prevQuestion" disabled>← Previous</button>
         <button class="nav-btn next" id="nextQuestion">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bookmarks Modal -->
+<div class="modal-overlay bookmarks-modal" id="bookmarksModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title">Your Bookmarks</h2>
+        <p style="font-size:0.88rem; opacity:0.9; margin-top:4px;">Saved responses from your conversations</p>
+      </div>
+      <button class="modal-close" id="closeBookmarksModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="bookmarks-list" id="bookmarksList">
+        <!-- Bookmarks will be populated here -->
+      </div>
+      <div class="bookmarks-empty" id="bookmarksEmpty" style="display:none;">
+        <div class="bookmarks-empty-icon">🔖</div>
+        <div class="bookmarks-empty-text">
+          You haven't bookmarked any responses yet.<br>
+          Click the bookmark button on any Aurora response to save it here.
+        </div>
       </div>
     </div>
   </div>
